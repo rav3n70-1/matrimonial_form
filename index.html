@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrimonial Registration Wizard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 animated-background">
+
+    <div class="w-full max-w-4xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10 border border-gray-200">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">💍 Matrimonial Registration</h1>
+            <p class="text-gray-500 mt-2">Find your perfect match. Complete the steps below.</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="relative pt-1">
+                <div class="flex mb-2 items-center justify-between">
+                    <div>
+                        <span id="progress-text" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200 transition-all duration-500">
+                            Step 1 of 4
+                        </span>
+                    </div>
+                </div>
+                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-200">
+                    <div id="progress-bar" style="width: 25%" class="progress-bar-fill shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <form id="matrimonyForm" novalidate>
+            <!-- Step 1: Personal Information -->
+            <div id="step-1" class="form-step active">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-6 border-b pb-2">👤 Personal Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-1 flex flex-col items-center">
+                        <label for="profilePicture" class="cursor-pointer group">
+                            <div class="relative">
+                                <img id="profilePreview" src="https://placehold.co/150x150/e0e7ff/3730a3?text=Upload+Photo" alt="Profile Preview" class="w-36 h-36 rounded-full object-cover border-4 border-gray-200 group-hover:border-blue-400 transition-all duration-300">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center rounded-full transition-all duration-300">
+                                    <i class="fas fa-camera text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                                </div>
+                            </div>
+                        </label>
+                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                        <span id="profilePicture-error" class="text-red-500 text-sm mt-2"></span>
+                    </div>
+                    <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="fullname" class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                            <input type="text" id="fullname" name="fullname" class="w-full p-2 border border-gray-300 rounded-md focus-ring" required>
+                            <span id="fullname-error" class="text-red-500 text-sm"></span>
+                        </div>
+                        <div>
+                            <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-1">Birth Date *</label>
+                            <input type="date" id="birthdate" name="birthdate" class="w-full p-2 border border-gray-300 rounded-md focus-ring" required>
+                            <span id="birthdate-error" class="text-red-500 text-sm"></span>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
+                            <div class="flex space-x-4">
+                                <label class="flex items-center"><input type="radio" name="gender" value="Male" class="mr-2 accent-blue-500" required>Male</label>
+                                <label class="flex items-center"><input type="radio" name="gender" value="Female" class="mr-2 accent-blue-500">Female</label>
+                                <label class="flex items-center"><input type="radio" name="gender" value="Other" class="mr-2 accent-blue-500">Other</label>
+                            </div>
+                            <span id="gender-error" class="text-red-500 text-sm"></span>
+                        </div>
+                        <div>
+                            <label for="height" class="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
+                            <input type="number" id="height" name="height" class="w-full p-2 border border-gray-300 rounded-md focus-ring">
+                             <span id="height-error" class="text-red-500 text-sm"></span>
+                        </div>
+                        <div>
+                            <label for="religion" class="block text-sm font-medium text-gray-700 mb-1">Religion *</label>
+                            <select id="religion" name="religion" class="w-full p-2 border border-gray-300 rounded-md focus-ring" required>
+                                <option value="" disabled selected>Select religion</option>
+                                <option>Christianity</option><option>Islam</option><option>Hinduism</option>
+                                <option>Buddhism</option><option>Judaism</option><option>Sikhism</option>
+                                <option>Atheism</option><option>Other</option>
+                            </select>
+                            <span id="religion-error" class="text-red-500 text-sm"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Professional Information -->
+            <div id="step-2" class="form-step">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-6 border-b pb-2">💼 Professional Information</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label for="profession" class="block text-sm font-medium text-gray-700 mb-1">Profession *</label>
+                        <input type="text" id="profession" name="profession" class="w-full p-2 border border-gray-300 rounded-md focus-ring" required>
+                        <span id="profession-error" class="text-red-500 text-sm"></span>
+                    </div>
+                    <div>
+                        <label for="income" class="block text-sm font-medium text-gray-700 mb-1">Monthly Income (USD) *</label>
+                        <input type="number" id="income" name="income" min="0" class="w-full p-2 border border-gray-300 rounded-md focus-ring" required>
+                        <span id="income-error" class="text-red-500 text-sm"></span>
+                    </div>
+                     <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                        <input type="email" id="email" name="email" class="w-full p-2 border border-gray-300 rounded-md focus-ring" required>
+                        <span id="email-error" class="text-red-500 text-sm"></span>
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                        <input type="tel" id="phone" name="phone" pattern="^[0-9]{10,15}$" class="w-full p-2 border border-gray-300 rounded-md focus-ring" placeholder="e.g., 1234567890" required>
+                        <span id="phone-error" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
+                 <div class="mt-6">
+                    <label for="expectations" class="block text-sm font-medium text-gray-700 mb-1">Describe what you're looking for in a partner *</label>
+                    <textarea id="expectations" name="expectations" rows="4" class="w-full p-2 border border-gray-300 rounded-md focus-ring" placeholder="Minimum 50 characters" required minlength="50"></textarea>
+                    <span id="expectations-error" class="text-red-500 text-sm"></span>
+                </div>
+            </div>
+
+            <!-- Step 3: Educational Qualifications -->
+            <div id="step-3" class="form-step">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-6 border-b pb-2">🎓 Educational Qualifications</h2>
+                <div id="education-container" class="space-y-4">
+                    <!-- Dynamic rows will be inserted here -->
+                </div>
+                <button type="button" id="add-education-btn" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform hover:scale-105">
+                    <i class="fas fa-plus mr-2"></i> Add Education
+                </button>
+            </div>
+
+            <!-- Step 4: Preview -->
+            <div id="step-4" class="form-step">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-6 border-b pb-2">✅ Preview & Confirm</h2>
+                <p class="text-gray-600 mb-6">Please review your information carefully before submitting.</p>
+                <div id="summary-container" class="space-y-6 bg-gray-50 p-6 rounded-lg border">
+                    <!-- Summary will be populated here -->
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-10 flex justify-between">
+                <button type="button" id="prev-btn" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105">
+                    <i class="fas fa-arrow-left mr-2"></i> Previous
+                </button>
+                <button type="button" id="next-btn" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition transform hover:scale-105">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+            
+            <div id="action-buttons" class="mt-10 flex flex-wrap justify-end gap-4" style="display: none;">
+                <button type="button" id="reset-btn" class="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition transform hover:scale-105">
+                    <i class="fas fa-redo mr-2"></i> Start Over
+                </button>
+                <button type="button" id="pdf-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition transform hover:scale-105">
+                    <i class="fas fa-file-pdf mr-2"></i> Download PDF
+                </button>
+                <button type="submit" id="submit-btn" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition transform hover:scale-105">
+                    <i class="fas fa-paper-plane mr-2"></i> Submit Registration
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="w-full max-w-sm bg-white rounded-lg shadow-lg pointer-events-auto ring-1 ring-black ring-opacity-5">
+        <div class="p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i id="notification-icon" class="h-6 w-6"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p id="notification-title" class="text-sm font-medium text-gray-900"></p>
+                    <p id="notification-message" class="mt-1 text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slide-in-top">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
+                    <i class="fas fa-exclamation-triangle text-2xl text-yellow-600"></i>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">Reset Form?</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Are you sure you want to start over? All entered data will be lost.
+                    </p>
+                </div>
+                <div class="items-center px-4 py-3 gap-2 flex justify-center">
+                    <button id="cancel-reset-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 w-full">
+                        Cancel
+                    </button>
+                    <button id="confirm-reset-btn" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 w-full">
+                        Yes, Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Container for PDF generation -->
+    <div id="pdf-preview-container"></div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
