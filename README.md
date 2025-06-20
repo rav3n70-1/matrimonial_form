@@ -8,8 +8,7 @@ The form is fully responsive, provides instant validation feedback, and enables 
 
 ## 📸 Live Preview
 
-> _It’s highly recommended to include a screenshot or a short GIF demo of the form here._  
-Use tools like **ScreenToGif** or **Giphy Capture** to record your form in action for better visual appeal.
+<img src="https://i.ibb.co/HLGx0dG2/mtm.gif" alt="mtm" border="0">
 
 ---
 
@@ -120,4 +119,3 @@ See the LICENSE file for full details.
 🙌 Contributing
 Pull requests and contributions are welcome!
 Feel free to open issues for suggestions, bugs, or improvements.
-"""
