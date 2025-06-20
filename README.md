@@ -8,7 +8,7 @@ The form is fully responsive, provides instant validation feedback, and enables 
 
 ## 📸 Live Preview
 
-[img]https://i.ibb.co/HLGx0dG2/mtm.gif[/img]
+<img src="https://i.ibb.co/HLGx0dG2/mtm.gif" alt="mtm" border="0">
 
 ---
 
