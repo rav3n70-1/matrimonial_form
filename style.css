@@ -53,6 +53,42 @@ input[type="file"] {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
+/* Input validation styles */
+.input-container {
+    position: relative;
+}
+
+.validation-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.validation-icon.valid {
+    color: #10b981; /* green-500 */
+    opacity: 1;
+}
+
+.validation-icon.invalid {
+    color: #ef4444; /* red-500 */
+    opacity: 1;
+}
+
+.input-valid {
+    border-color: #10b981 !important; /* border-green-500 */
+    background-color: #f0fdf4; /* bg-green-50 */
+}
+
+.input-valid:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3) !important;
+}
+
 /* Custom error styling */
 .input-error {
     border-color: #ef4444 !important; /* border-red-500 */
@@ -101,4 +137,63 @@ input[type="file"] {
     padding: 2rem;
     background: white;
     font-family: 'Inter', sans-serif;
+}
+
+/* Checkbox group styling */
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-color: white;
+}
+
+.checkbox-item:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #3b82f6;
+}
+
+.checkbox-item.checked {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Height input styling */
+.height-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+}
+
+.height-input-group input {
+    text-align: center;
+}
+
+.height-input-group .height-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+    text-align: center;
 }

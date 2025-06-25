@@ -71,6 +71,29 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = new FormData(form);
             const collectedData = Object.fromEntries(data.entries());
 
+            // Collect hobbies
+            const hobbies = [];
+            document.querySelectorAll('input[name="hobbies"]:checked').forEach(checkbox => {
+                hobbies.push(checkbox.value);
+            });
+            collectedData.hobbies = hobbies;
+
+            // Collect favorite places
+            const favoritePlaces = [];
+            document.querySelectorAll('input[name="favoritePlaces"]:checked').forEach(checkbox => {
+                favoritePlaces.push(checkbox.value);
+            });
+            collectedData.favoritePlaces = favoritePlaces;
+
+            // Format height from feet and inches
+            const heightFeet = document.getElementById('height-feet')?.value || '';
+            const heightInches = document.getElementById('height-inches')?.value || '';
+            if (heightFeet || heightInches) {
+                const feet = heightFeet ? `${heightFeet}'` : '0\'';
+                const inches = heightInches ? `${heightInches}"` : '0"';
+                collectedData.height = `${feet}${inches}`;
+            }
+
             collectedData.education = [];
             const eduRows = educationContainer.querySelectorAll('.education-row');
             eduRows.forEach(row => {
@@ -127,16 +150,44 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t">
                 <div><strong class="text-gray-600">Gender:</strong> ${getDisplayValue('gender', formData.gender)}</div>
                 <div><strong class="text-gray-600">Birth Date:</strong> ${getDisplayValue('birthdate', formData.birthdate)}</div>
-                <div><strong class="text-gray-600">Height:</strong> ${formData.height ? formData.height + ' cm' : getDisplayValue('height', formData.height)}</div>
+                <div><strong class="text-gray-600">Height:</strong> ${formData.height || getDisplayValue('height', formData.height)}</div>
                 <div><strong class="text-gray-600">Religion:</strong> ${getDisplayValue('religion', formData.religion)}</div>
                 <div><strong class="text-gray-600">Email:</strong> ${getDisplayValue('email', formData.email)}</div>
                 <div><strong class="text-gray-600">Phone:</strong> ${getDisplayValue('phone', formData.phone)}</div>
-                <div class="md:col-span-2"><strong class="text-gray-600">Monthly Income:</strong> ${formData.income ? '$' + Number(formData.income).toLocaleString() : getDisplayValue('income', formData.income)}</div>
+                <div class="md:col-span-2"><strong class="text-gray-600">Monthly Income:</strong> ${formData.income ? '৳' + Number(formData.income).toLocaleString() : getDisplayValue('income', formData.income)}</div>
+            </div>
+            <div class="mt-4 pt-4 border-t">
+                <h4 class="text-lg font-semibold text-gray-700 mb-3">👨‍👩‍👧‍👦 Family Information</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                    <div><strong class="text-gray-600">Father's Name:</strong> ${getDisplayValue('fathername', formData.fathername)}</div>
+                    <div><strong class="text-gray-600">Mother's Name:</strong> ${getDisplayValue('mothername', formData.mothername)}</div>
+                    <div class="md:col-span-2"><strong class="text-gray-600">Address:</strong> ${getDisplayValue('address', formData.address)}</div>
+                </div>
             </div>
              <div class="mt-4 pt-4 border-t">
                 <strong class="text-gray-600 block mb-2 text-lg">Partner Expectations:</strong>
                 <p class="text-gray-700 italic bg-white p-4 rounded-md shadow-inner">${getDisplayValue('expectations', formData.expectations)}</p>
             </div>
+            ${(formData.hobbies && formData.hobbies.length > 0) ? `
+                <div class="mt-4 pt-4 border-t">
+                    <strong class="text-gray-600 block mb-2 text-lg">🎯 Hobbies & Interests:</strong>
+                    <div class="flex flex-wrap gap-2">
+                        ${formData.hobbies.map(hobby => `
+                            <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full border border-blue-200">${hobby}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            ${(formData.favoritePlaces && formData.favoritePlaces.length > 0) ? `
+                <div class="mt-4 pt-4 border-t">
+                    <strong class="text-gray-600 block mb-2 text-lg">🌍 Favorite Places:</strong>
+                    <div class="flex flex-wrap gap-2">
+                        ${formData.favoritePlaces.map(place => `
+                            <span class="inline-block bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full border border-green-200">${place}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
             ${ (formData.education && formData.education.length > 0) ? `
                 <div class="mt-4 pt-4 border-t">
                     <strong class="text-gray-600 block mb-2 text-lg">Education:</strong>
@@ -154,7 +205,279 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     };
 
-    // --- Validation ---
+    // --- Enhanced Validation with Visual Feedback ---
+    
+    // Name validation function - allows letters, spaces, dots, apostrophes, hyphens
+    const validateName = (value) => {
+        const namePattern = /^[a-zA-Z\s.''-]+$/;
+        return namePattern.test(value.trim()) && value.trim().length >= 2;
+    };
+
+    // Email validation
+    const validateEmail = (email) => {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    };
+
+    // Phone validation
+    const validatePhone = (phone) => {
+        const phonePattern = /^\d{10,15}$/;
+        return phonePattern.test(phone.replace(/\s+/g, ''));
+    };
+
+    // Address validation
+    const validateAddress = (address) => {
+        return address.trim().length >= 10;
+    };
+
+    // Set validation state for a field
+    const setValidationState = (fieldId, isValid, errorMessage = '') => {
+        const field = document.getElementById(fieldId);
+        const validIcon = document.getElementById(`${fieldId}-valid`);
+        const invalidIcon = document.getElementById(`${fieldId}-invalid`);
+        const errorSpan = document.getElementById(`${fieldId}-error`);
+
+        if (!field) return;
+
+        // Clear previous states
+        field.classList.remove('input-valid', 'input-error');
+        if (validIcon) validIcon.classList.remove('valid');
+        if (invalidIcon) invalidIcon.classList.remove('invalid');
+        if (errorSpan) errorSpan.textContent = '';
+
+        if (isValid) {
+            field.classList.add('input-valid');
+            if (validIcon) validIcon.classList.add('valid');
+        } else {
+            field.classList.add('input-error');
+            if (invalidIcon) invalidIcon.classList.add('invalid');
+            if (errorSpan) errorSpan.textContent = errorMessage;
+        }
+    };
+
+    // Real-time validation setup
+    const setupRealTimeValidation = () => {
+        // Name fields validation
+        ['fullname', 'fathername', 'mothername'].forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', function() {
+                    const value = this.value;
+                    if (value.length === 0) {
+                        setValidationState(fieldId, false, '');
+                        return;
+                    }
+                    
+                    if (validateName(value)) {
+                        setValidationState(fieldId, true);
+                    } else {
+                        setValidationState(fieldId, false, 'Only letters, spaces, dots, apostrophes and hyphens are allowed');
+                    }
+                });
+
+                field.addEventListener('blur', function() {
+                    const value = this.value;
+                    if (value.length > 0 && !validateName(value)) {
+                        setValidationState(fieldId, false, 'Please enter a valid name');
+                    } else if (value.length > 0 && value.trim().length < 2) {
+                        setValidationState(fieldId, false, 'Name must be at least 2 characters long');
+                    }
+                });
+            }
+        });
+
+        // Email validation
+        const emailField = document.getElementById('email');
+        if (emailField) {
+            emailField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('email', false, '');
+                    return;
+                }
+                
+                if (validateEmail(value)) {
+                    setValidationState('email', true);
+                } else {
+                    setValidationState('email', false, 'Please enter a valid email address');
+                }
+            });
+        }
+
+        // Phone validation
+        const phoneField = document.getElementById('phone');
+        if (phoneField) {
+            phoneField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('phone', false, '');
+                    return;
+                }
+                
+                if (validatePhone(value)) {
+                    setValidationState('phone', true);
+                } else {
+                    setValidationState('phone', false, 'Please enter a valid phone number (10-15 digits)');
+                }
+            });
+        }
+
+        // Profession validation
+        const professionField = document.getElementById('profession');
+        if (professionField) {
+            professionField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('profession', false, '');
+                    return;
+                }
+                
+                if (value.trim().length >= 2) {
+                    setValidationState('profession', true);
+                } else {
+                    setValidationState('profession', false, 'Profession must be at least 2 characters long');
+                }
+            });
+        }
+
+        // Income validation
+        const incomeField = document.getElementById('income');
+        if (incomeField) {
+            incomeField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('income', false, '');
+                    return;
+                }
+                
+                if (value > 0) {
+                    setValidationState('income', true);
+                } else {
+                    setValidationState('income', false, 'Please enter a valid income amount');
+                }
+            });
+        }
+
+        // Address validation
+        const addressField = document.getElementById('address');
+        if (addressField) {
+            addressField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('address', false, '');
+                    return;
+                }
+                
+                if (validateAddress(value)) {
+                    setValidationState('address', true);
+                } else {
+                    setValidationState('address', false, 'Address must be at least 10 characters long');
+                }
+            });
+        }
+
+        // Height validation (feet and inches)
+        const heightFeetField = document.getElementById('height-feet');
+        const heightInchesField = document.getElementById('height-inches');
+        
+        const validateHeight = () => {
+            const feet = heightFeetField ? parseInt(heightFeetField.value) || 0 : 0;
+            const inches = heightInchesField ? parseInt(heightInchesField.value) || 0 : 0;
+            
+            if (feet === 0 && inches === 0) {
+                setValidationState('height', false, '');
+                return;
+            }
+            
+            if (feet >= 3 && feet <= 8 && inches >= 0 && inches <= 11) {
+                const totalInches = (feet * 12) + inches;
+                if (totalInches >= 36 && totalInches <= 96) { // 3'0" to 8'0"
+                    setValidationState('height', true);
+                } else {
+                    setValidationState('height', false, 'Height must be between 3\'0" and 8\'0"');
+                }
+            } else {
+                setValidationState('height', false, 'Please enter valid feet (3-8) and inches (0-11)');
+            }
+        };
+
+        if (heightFeetField) {
+            heightFeetField.addEventListener('input', validateHeight);
+        }
+        if (heightInchesField) {
+            heightInchesField.addEventListener('input', validateHeight);
+        }
+
+        // Birthdate validation
+        const birthdateField = document.getElementById('birthdate');
+        if (birthdateField) {
+            birthdateField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('birthdate', false, '');
+                    return;
+                }
+                
+                const birthDate = new Date(value);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear();
+                
+                if (age >= 18 && age <= 100) {
+                    setValidationState('birthdate', true);
+                } else if (age < 18) {
+                    setValidationState('birthdate', false, 'You must be at least 18 years old');
+                } else {
+                    setValidationState('birthdate', false, 'Please enter a valid birth date');
+                }
+            });
+        }
+
+        // Religion validation
+        const religionField = document.getElementById('religion');
+        if (religionField) {
+            religionField.addEventListener('change', function() {
+                const value = this.value;
+                if (value && value.length > 0) {
+                    setValidationState('religion', true);
+                } else {
+                    setValidationState('religion', false, 'Please select a religion');
+                }
+            });
+        }
+
+        // Expectations validation
+        const expectationsField = document.getElementById('expectations');
+        if (expectationsField) {
+            expectationsField.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length === 0) {
+                    setValidationState('expectations', false, '');
+                    return;
+                }
+                
+                if (value.trim().length >= 50) {
+                    setValidationState('expectations', true);
+                } else {
+                    setValidationState('expectations', false, `At least 50 characters required (${value.trim().length}/50)`);
+                }
+            });
+        }
+    };
+
+    // Enhanced checkbox functionality
+    const setupCheckboxes = () => {
+        document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const item = this.closest('.checkbox-item');
+                if (this.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+        });
+    };
+
     const validateStep = (stepNumber) => {
         let isValid = true;
         const currentStepFields = document.getElementById(`step-${stepNumber}`).querySelectorAll('[required]');
@@ -165,31 +488,82 @@ document.addEventListener('DOMContentLoaded', function () {
             if (errorSpan) errorSpan.textContent = '';
 
             let hasError = false;
+            let errorMessage = '';
+
             if (field.type === 'radio') {
                 const radioGroup = document.querySelector(`input[name="${field.name}"]:checked`);
                 if (!radioGroup) {
                     hasError = true;
-                    document.getElementById('gender-error').textContent = 'Please select a gender.';
+                    errorMessage = 'Please select a gender.';
+                    document.getElementById('gender-error').textContent = errorMessage;
                 }
             } else if (field.type === 'file') {
-                 // Profile picture is optional
-            } else if (!field.checkValidity()) {
-                hasError = true;
-                if (field.validity.valueMissing) {
-                   if (errorSpan) errorSpan.textContent = `${field.labels[0].textContent.replace('*','').trim()} is required.`;
-                } else if (field.validity.typeMismatch) {
-                   if (errorSpan) errorSpan.textContent = `Please enter a valid ${field.type}.`;
-                } else if (field.validity.patternMismatch) {
-                     if (errorSpan) errorSpan.textContent = 'Please match the requested format.';
-                } else if (field.validity.tooShort) {
-                    if (errorSpan) errorSpan.textContent = `Minimum ${field.minLength} characters required.`;
-                } else {
-                   if (errorSpan) errorSpan.textContent = 'This field has an error.';
+                // Profile picture is optional
+            } else {
+                // Custom validation for specific fields
+                if (field.id === 'fullname' || field.id === 'fathername' || field.id === 'mothername') {
+                    if (!field.value.trim()) {
+                        hasError = true;
+                        errorMessage = `${field.labels[0].textContent.replace('*','').trim()} is required.`;
+                    } else if (!validateName(field.value)) {
+                        hasError = true;
+                        errorMessage = 'Only letters, spaces, dots, apostrophes and hyphens are allowed.';
+                    }
+                } else if (field.id === 'email') {
+                    if (!field.value.trim()) {
+                        hasError = true;
+                        errorMessage = 'Email is required.';
+                    } else if (!validateEmail(field.value)) {
+                        hasError = true;
+                        errorMessage = 'Please enter a valid email address.';
+                    }
+                } else if (field.id === 'phone') {
+                    if (!field.value.trim()) {
+                        hasError = true;
+                        errorMessage = 'Phone number is required.';
+                    } else if (!validatePhone(field.value)) {
+                        hasError = true;
+                        errorMessage = 'Please enter a valid phone number (10-15 digits).';
+                    }
+                } else if (field.id === 'address') {
+                    if (!field.value.trim()) {
+                        hasError = true;
+                        errorMessage = 'Address is required.';
+                    } else if (!validateAddress(field.value)) {
+                        hasError = true;
+                        errorMessage = 'Address must be at least 10 characters long.';
+                    }
+                } else if (field.id === 'birthdate') {
+                    if (!field.value) {
+                        hasError = true;
+                        errorMessage = 'Birth date is required.';
+                    } else {
+                        const birthDate = new Date(field.value);
+                        const today = new Date();
+                        const age = today.getFullYear() - birthDate.getFullYear();
+                        if (age < 18) {
+                            hasError = true;
+                            errorMessage = 'You must be at least 18 years old.';
+                        }
+                    }
+                } else if (!field.checkValidity()) {
+                    hasError = true;
+                    if (field.validity.valueMissing) {
+                        errorMessage = `${field.labels[0].textContent.replace('*','').trim()} is required.`;
+                    } else if (field.validity.typeMismatch) {
+                        errorMessage = `Please enter a valid ${field.type}.`;
+                    } else if (field.validity.patternMismatch) {
+                        errorMessage = 'Please match the requested format.';
+                    } else if (field.validity.tooShort) {
+                        errorMessage = `Minimum ${field.minLength} characters required.`;
+                    } else {
+                        errorMessage = 'This field has an error.';
+                    }
                 }
             }
             
             if (hasError) {
-                field.classList.add('input-error');
+                setValidationState(field.id, false, errorMessage);
                 isValid = false;
             }
         });
@@ -340,8 +714,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('profilePreview').src = 'https://placehold.co/150x150/e0e7ff/3730a3?text=Upload+Photo';
         educationContainer.innerHTML = '';
         addEducationRow();
+        
+        // Clear validation states
         document.querySelectorAll('.text-red-500.text-sm').forEach(span => span.textContent = '');
-        document.querySelectorAll('.input-error').forEach(input => input.classList.remove('input-error'));
+        document.querySelectorAll('.input-error, .input-valid').forEach(input => {
+            input.classList.remove('input-error', 'input-valid');
+        });
+        document.querySelectorAll('.validation-icon').forEach(icon => {
+            icon.classList.remove('valid', 'invalid');
+        });
+        document.querySelectorAll('.checkbox-item.checked').forEach(item => {
+            item.classList.remove('checked');
+        });
+        
         updateUI();
         modal.classList.add('hidden');
         showNotification('info', 'Form Reset', 'You can now start over from the beginning.');
@@ -349,5 +734,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initial setup
     addEducationRow();
+    setupRealTimeValidation();
+    setupCheckboxes();
     updateUI();
 });
